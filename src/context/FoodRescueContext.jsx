@@ -242,6 +242,52 @@ export function FoodRescueProvider({ children }) {
     addToast(`Delivered successfully! ${meals} meals safely provided. Impact recorded.`);
   };
 
+  // Action: Register as a Volunteer
+  const registerVolunteer = (formData) => {
+    const volCode = `FR-VOL-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newProfile = {
+      name: formData.fullName || 'Community Volunteer',
+      role: 'Verified Community Rescuer',
+      location: `${formData.area ? formData.area + ', ' : ''}${formData.city || 'Guwahati'}`,
+      joinedDate: 'Joined today',
+      contact: formData.phone || '+91 98640 00000',
+      email: formData.email || 'volunteer@foodrescue.org',
+      vehicle: formData.vehicle || 'Two-wheeler',
+      personalStats: {
+        mealsRescued: 0,
+        pickupsCompleted: 0,
+        kgSaved: 0,
+        orgsHelped: 0,
+      },
+      achievements: [
+        {
+          id: 'welcome-badge',
+          title: 'Registered Rescuer',
+          desc: 'Completed onboarding as an active FoodRescue community volunteer',
+          icon: 'ShieldCheck',
+          unlocked: true,
+          date: 'Today',
+        },
+      ],
+    };
+
+    setVolunteerProfile(newProfile);
+
+    const newVolunteerListItem = {
+      id: `vol-${Date.now().toString().slice(-4)}`,
+      name: formData.fullName || 'Community Volunteer',
+      location: formData.city || 'Guwahati',
+      pickups: 0,
+      mealsRescued: 0,
+      vehicle: formData.vehicle || 'Two-wheeler',
+      status: 'Active',
+    };
+    setVolunteers((prev) => [newVolunteerListItem, ...prev]);
+
+    addToast(`Welcome to the rescue network, ${formData.fullName}! Your volunteer credentials are ready.`, 'success');
+    return { ...newProfile, trackingId: volCode };
+  };
+
   // Reset to original mock data
   const resetToDefaults = () => {
     localStorage.removeItem(STORAGE_KEYS.DONATIONS);
@@ -272,6 +318,7 @@ export function FoodRescueProvider({ children }) {
         claimPickup,
         markAsCollected,
         markAsDelivered,
+        registerVolunteer,
         resetToDefaults,
       }}
     >

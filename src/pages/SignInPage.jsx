@@ -265,7 +265,7 @@ export default function SignInPage() {
                 Post food
               </Link>{' '}
               or{' '}
-              <Link to="/dashboard" className="text-[#056b4e] font-semibold hover:underline">
+              <Link to="/register-volunteer" className="text-[#056b4e] font-semibold hover:underline">
                 Register as volunteer
               </Link>
             </div>

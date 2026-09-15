@@ -62,7 +62,7 @@ export default function HomePage() {
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
-                  to="/available-food"
+                  to="/register-volunteer"
                   className="btn-secondary text-sm sm:text-base px-6 py-3.5"
                 >
                   I want to volunteer
@@ -305,10 +305,10 @@ export default function HomePage() {
                   Post Food as a Donor
                 </Link>
                 <Link
-                  to="/dashboard"
+                  to="/register-volunteer"
                   className="px-6 py-3 rounded-full bg-[#04563e] text-white text-sm font-medium border border-emerald-700/60 hover:bg-[#034431] transition-all"
                 >
-                  Volunteer Portal
+                  Register as Volunteer
                 </Link>
               </div>
             </div>
