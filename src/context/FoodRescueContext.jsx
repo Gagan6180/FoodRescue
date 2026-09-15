@@ -484,6 +484,27 @@ export function FoodRescueProvider({ children }) {
     };
     setVolunteers((prev) => [newVolunteerListItem, ...prev]);
 
+    if (supabase && isLiveDb) {
+      try {
+        supabase
+          .from('volunteers')
+          .insert({
+            id: newVolunteerListItem.id,
+            name: newVolunteerListItem.name,
+            location: newVolunteerListItem.location,
+            pickups: 0,
+            meals_rescued: 0,
+            vehicle: newVolunteerListItem.vehicle,
+            status: 'Active',
+          })
+          .then(({ error }) => {
+            if (error) console.error('Supabase volunteer insert error:', error);
+          });
+      } catch (err) {
+        console.error('Error syncing volunteer to Supabase:', err);
+      }
+    }
+
     addToast(`Welcome to the rescue network, ${formData.fullName}! Your volunteer credentials are ready.`, 'success');
     return { ...newProfile, trackingId: volCode };
   };
