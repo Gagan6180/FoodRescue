@@ -7,6 +7,7 @@ import {
   PlusCircle,
   UtensilsCrossed,
 } from 'lucide-react';
+import SupabaseStatusBadge from '../common/SupabaseStatusBadge';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -81,8 +82,9 @@ export default function Navbar() {
             })}
           </nav>
 
-          {/* Right Actions: Sign In + Donate Food Pill Button */}
-          <div className="hidden md:flex items-center gap-5">
+          {/* Right Actions: Supabase Status + Sign In + Donate Food Pill Button */}
+          <div className="hidden md:flex items-center gap-4">
+            <SupabaseStatusBadge />
             <Link
               to="/signin"
               className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
@@ -97,11 +99,12 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile hamburger */}
+          {/* Mobile hamburger & status */}
           <div className="flex items-center gap-2 md:hidden">
+            <SupabaseStatusBadge />
             <Link
               to="/donate"
-              className="inline-flex items-center gap-1 px-3.5 py-1.5 text-xs font-medium rounded-full bg-[#056b4e] text-white"
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-full bg-[#056b4e] text-white"
             >
               <PlusCircle className="w-3.5 h-3.5" />
               Donate

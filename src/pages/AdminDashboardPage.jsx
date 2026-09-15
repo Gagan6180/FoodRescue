@@ -19,6 +19,7 @@ import {
   ArrowUpRight,
   Layers,
   FileText,
+  AlertTriangle,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -33,6 +34,10 @@ export default function AdminDashboardPage() {
     markAsDelivered,
     addToast,
     resetToDefaults,
+    isLiveDb,
+    isSupabaseConfigured,
+    dbLoading,
+    refreshData,
   } = useFoodRescue();
 
   const [selectedDonation, setSelectedDonation] = useState(null);
@@ -119,21 +124,44 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* System status bar */}
-          <div className="pt-4 flex flex-wrap items-center justify-between text-xs text-gray-500 gap-2">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1.5 text-emerald-700 font-medium">
-                <CheckCircle2 className="w-4 h-4" /> Live Sync Active
+          <div className="pt-4 flex flex-wrap items-center justify-between text-xs text-gray-500 gap-3">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+              <span className={`inline-flex items-center gap-1.5 font-semibold ${isLiveDb ? 'text-emerald-700' : isSupabaseConfigured ? 'text-amber-700' : 'text-slate-600'}`}>
+                {isLiveDb ? (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Supabase PostgreSQL: Connected & Live</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                    <span>Database: Local Storage Mode</span>
+                  </>
+                )}
               </span>
               <span>•</span>
               <span>5 Active Hubs: Guwahati, Nagaon, Delhi, Mumbai, Bengaluru</span>
             </div>
-            <button
-              type="button"
-              onClick={resetToDefaults}
-              className="text-gray-400 hover:text-red-600 underline transition-colors"
-            >
-              Reset Mock State
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={refreshData}
+                disabled={dbLoading}
+                className="inline-flex items-center gap-1 text-gray-600 hover:text-emerald-700 font-medium transition-colors cursor-pointer"
+                title="Refetch data from Supabase"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${dbLoading ? 'animate-spin text-emerald-600' : ''}`} />
+                <span>{dbLoading ? 'Syncing...' : 'Sync Database'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={resetToDefaults}
+                className="text-gray-400 hover:text-red-600 underline transition-colors"
+              >
+                Reset Demo Data
+              </button>
+            </div>
           </div>
         </div>
 

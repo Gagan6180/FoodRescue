@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import {
   INITIAL_DONATIONS,
   INITIAL_STATS,
@@ -6,6 +6,16 @@ import {
   MOCK_ORGANIZATIONS,
   MOCK_VOLUNTEERS,
 } from '../data/mockData';
+import {
+  supabase,
+  isSupabaseConfigured,
+  mapDonationFromDb,
+  mapDonationToDb,
+  mapStatsFromDb,
+  mapStatsToDb,
+  mapOrganizationFromDb,
+  mapVolunteerFromDb,
+} from '../lib/supabase';
 
 const FoodRescueContext = createContext(null);
 
@@ -18,6 +28,10 @@ const STORAGE_KEYS = {
 };
 
 export function FoodRescueProvider({ children }) {
+  // Database connection states
+  const [isLiveDb, setIsLiveDb] = useState(() => isSupabaseConfigured());
+  const [dbLoading, setDbLoading] = useState(false);
+
   // 1. Donations state
   const [donations, setDonations] = useState(() => {
     try {
@@ -71,7 +85,20 @@ export function FoodRescueProvider({ children }) {
   // 6. Active Toast Notifications
   const [toasts, setToasts] = useState([]);
 
-  // Persistence effects
+  // Toast Helpers
+  const addToast = (message, type = 'success') => {
+    const id = Date.now() + Math.random().toString(36).substring(2, 6);
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      removeToast(id);
+    }, 4500);
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // Local storage persistence sync (fallback and caching)
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.DONATIONS, JSON.stringify(donations));
   }, [donations]);
@@ -92,21 +119,108 @@ export function FoodRescueProvider({ children }) {
     localStorage.setItem(STORAGE_KEYS.VOLUNTEER_LIST, JSON.stringify(volunteers));
   }, [volunteers]);
 
-  // Toast Helpers
-  const addToast = (message, type = 'success') => {
-    const id = Date.now() + Math.random().toString(36).substring(2, 6);
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      removeToast(id);
-    }, 4500);
-  };
+  // Fetch initial data from Supabase if configured
+  const refreshData = useCallback(async () => {
+    if (!isSupabaseConfigured() || !supabase) {
+      setIsLiveDb(false);
+      return;
+    }
 
-  const removeToast = (id) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
+    try {
+      setDbLoading(true);
+
+      // 1. Fetch Donations
+      const { data: donationsData, error: donErr } = await supabase
+        .from('donations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (donErr) {
+        throw donErr;
+      }
+
+      if (donationsData && donationsData.length > 0) {
+        setDonations(donationsData.map(mapDonationFromDb));
+      }
+
+      // 2. Fetch Stats
+      const { data: statsData, error: statsErr } = await supabase
+        .from('stats')
+        .select('*')
+        .eq('id', 1)
+        .maybeSingle();
+
+      if (!statsErr && statsData) {
+        setStats(mapStatsFromDb(statsData));
+      }
+
+      // 3. Fetch Organizations
+      const { data: orgsData, error: orgErr } = await supabase
+        .from('organizations')
+        .select('*');
+
+      if (!orgErr && orgsData && orgsData.length > 0) {
+        setOrganizations(orgsData.map(mapOrganizationFromDb));
+      }
+
+      // 4. Fetch Volunteers
+      const { data: volsData, error: volErr } = await supabase
+        .from('volunteers')
+        .select('*');
+
+      if (!volErr && volsData && volsData.length > 0) {
+        setVolunteers(volsData.map(mapVolunteerFromDb));
+      }
+
+      setIsLiveDb(true);
+    } catch (err) {
+      console.warn('Supabase fetch failed, continuing with local dataset:', err);
+      setIsLiveDb(false);
+    } finally {
+      setDbLoading(false);
+    }
+  }, []);
+
+  // Set up initial data fetch and Supabase Realtime listeners
+  useEffect(() => {
+    if (!isSupabaseConfigured() || !supabase) return;
+
+    refreshData();
+
+    // Subscribe to real-time changes on donations and stats
+    const donationsChannel = supabase
+      .channel('public-donations-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'donations' },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const item = mapDonationFromDb(payload.new);
+            setDonations((prev) => [item, ...prev.filter((d) => d.id !== item.id)]);
+          } else if (payload.eventType === 'UPDATE') {
+            const item = mapDonationFromDb(payload.new);
+            setDonations((prev) => prev.map((d) => (d.id === item.id ? item : d)));
+          } else if (payload.eventType === 'DELETE') {
+            setDonations((prev) => prev.filter((d) => d.id !== payload.old.id));
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'stats' },
+        (payload) => {
+          setStats(mapStatsFromDb(payload.new));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(donationsChannel);
+    };
+  }, [refreshData]);
 
   // Action: Add new surplus donation
-  const addDonation = (newDonation) => {
+  const addDonation = async (newDonation) => {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const donationId = `FR-${randomSuffix}`;
     const weight = Number(newDonation.mealsCount || 10) * 0.45;
@@ -138,20 +252,45 @@ export function FoodRescueProvider({ children }) {
       destinationOrg: null,
     };
 
+    // Optimistic UI state update
     setDonations((prev) => [createdItem, ...prev]);
     setStats((prev) => ({
       ...prev,
       activeDonors: prev.activeDonors + 1,
     }));
 
+    // Async persist to Supabase if connected
+    if (supabase && isLiveDb) {
+      try {
+        const { error } = await supabase
+          .from('donations')
+          .insert(mapDonationToDb(createdItem));
+
+        if (error) {
+          console.error('Supabase donation insert error:', error);
+        } else {
+          // Increment active donors in Supabase stats
+          await supabase
+            .from('stats')
+            .update({ active_donors: stats.activeDonors + 1 })
+            .eq('id', 1);
+        }
+      } catch (err) {
+        console.error('Error inserting donation into Supabase:', err);
+      }
+    }
+
     addToast(`Donation ${donationId} created! It is now live on the Available Food board.`);
     return createdItem;
   };
 
   // Action: Volunteer claims pickup
-  const claimPickup = (donationId) => {
+  const claimPickup = async (donationId) => {
     const item = donations.find((d) => d.id === donationId);
     if (!item) return;
+
+    const claimedAt = 'Just now';
+    const destinationOrg = 'Community Kitchen (Paltan Bazar)';
 
     setDonations((prev) =>
       prev.map((d) =>
@@ -160,39 +299,78 @@ export function FoodRescueProvider({ children }) {
               ...d,
               status: 'Accepted',
               claimedBy: volunteerProfile.name,
-              claimedAt: 'Just now',
-              destinationOrg: 'Community Kitchen (Paltan Bazar)',
+              claimedAt,
+              destinationOrg,
             }
           : d
       )
     );
 
+    if (supabase && isLiveDb) {
+      try {
+        const { error } = await supabase
+          .from('donations')
+          .update({
+            status: 'Accepted',
+            claimed_by: volunteerProfile.name,
+            claimed_at: claimedAt,
+            destination_org: destinationOrg,
+          })
+          .eq('id', donationId);
+
+        if (error) console.error('Supabase claim update error:', error);
+      } catch (err) {
+        console.error('Error updating claim on Supabase:', err);
+      }
+    }
+
     addToast(`Pickup ${donationId} accepted. You can view & progress it in My Pickups.`);
   };
 
   // Action: Mark as Collected
-  const markAsCollected = (donationId) => {
+  const markAsCollected = async (donationId) => {
+    const collectedAt = 'Just now';
+
     setDonations((prev) =>
       prev.map((d) =>
         d.id === donationId
           ? {
               ...d,
               status: 'Collected',
-              collectedAt: 'Just now',
+              collectedAt,
             }
           : d
       )
     );
+
+    if (supabase && isLiveDb) {
+      try {
+        const { error } = await supabase
+          .from('donations')
+          .update({
+            status: 'Collected',
+            collected_at: collectedAt,
+          })
+          .eq('id', donationId);
+
+        if (error) console.error('Supabase collect update error:', error);
+      } catch (err) {
+        console.error('Error updating collected status on Supabase:', err);
+      }
+    }
+
     addToast(`Food collected from donor. Head towards distribution point.`);
   };
 
   // Action: Mark as Delivered
-  const markAsDelivered = (donationId, destinationOrgName) => {
+  const markAsDelivered = async (donationId, destinationOrgName) => {
     const item = donations.find((d) => d.id === donationId);
     if (!item) return;
 
     const meals = item.mealsCount || 20;
     const kg = item.kgWeight || Math.round(meals * 0.45);
+    const deliveredAt = 'Just now';
+    const destinationOrg = destinationOrgName || item.destinationOrg || 'Community Kitchen';
 
     setDonations((prev) =>
       prev.map((d) =>
@@ -200,20 +378,21 @@ export function FoodRescueProvider({ children }) {
           ? {
               ...d,
               status: 'Delivered',
-              deliveredAt: 'Just now',
-              destinationOrg: destinationOrgName || d.destinationOrg || 'Community Kitchen',
+              deliveredAt,
+              destinationOrg,
             }
           : d
       )
     );
 
     // Update global platform metrics
-    setStats((prev) => ({
-      ...prev,
-      successfulPickups: prev.successfulPickups + 1,
-      mealsRescued: prev.mealsRescued + meals,
-      divertedKg: prev.divertedKg + kg,
-    }));
+    const newStats = {
+      ...stats,
+      successfulPickups: stats.successfulPickups + 1,
+      mealsRescued: stats.mealsRescued + meals,
+      divertedKg: stats.divertedKg + kg,
+    };
+    setStats(newStats);
 
     // Update volunteer's personal metrics
     setVolunteerProfile((prev) => ({
@@ -239,6 +418,27 @@ export function FoodRescueProvider({ children }) {
       )
     );
 
+    // Sync to Supabase
+    if (supabase && isLiveDb) {
+      try {
+        await supabase
+          .from('donations')
+          .update({
+            status: 'Delivered',
+            delivered_at: deliveredAt,
+            destination_org: destinationOrg,
+          })
+          .eq('id', donationId);
+
+        await supabase
+          .from('stats')
+          .update(mapStatsToDb(newStats))
+          .eq('id', 1);
+      } catch (err) {
+        console.error('Error updating delivered status on Supabase:', err);
+      }
+    }
+
     addToast(`Delivered successfully! ${meals} meals safely provided. Impact recorded.`);
   };
 
@@ -254,7 +454,7 @@ export function FoodRescueProvider({ children }) {
     setVolunteerProfile(INITIAL_VOLUNTEER_PROFILE);
     setOrganizations(MOCK_ORGANIZATIONS);
     setVolunteers(MOCK_VOLUNTEERS);
-    addToast('Demo database reset to initial realistic values.', 'info');
+    addToast('Demo dataset reset to initial values.', 'info');
   };
 
   return (
@@ -266,6 +466,10 @@ export function FoodRescueProvider({ children }) {
         organizations,
         volunteers,
         toasts,
+        isLiveDb,
+        isSupabaseConfigured: isSupabaseConfigured(),
+        dbLoading,
+        refreshData,
         addToast,
         removeToast,
         addDonation,
