@@ -19,24 +19,24 @@ import {
 
 const heroBackgrounds = [
   {
-    url: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1400&q=80',
-    title: 'Fresh community market produce and healthy fruits',
+    url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1600&q=80',
+    title: 'Caring hands sharing fresh wholesome food with an underprivileged child',
   },
   {
-    url: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1400&q=80',
-    title: 'Volunteers packing boxes of wholesome food donations',
+    url: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=1600&q=80',
+    title: 'Underprivileged children smiling with hope at community food drive',
   },
   {
-    url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1400&q=80',
-    title: 'Fresh artisan bread and baked goods rescued daily',
+    url: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1600&q=80',
+    title: 'Young underprivileged children supported with daily nutrition and care',
   },
   {
-    url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1400&q=80',
-    title: 'Community feeding centers and smiles from nourished families',
+    url: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1600&q=80',
+    title: 'Children from vulnerable communities gathered for meals and nourishment',
   },
   {
-    url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1400&q=80',
-    title: 'Nutritious hot meals prepared by restaurants and caterers',
+    url: 'https://images.unsplash.com/photo-1541802645635-11f2286a7482?auto=format&fit=crop&w=1600&q=80',
+    title: 'Child receiving warm wholesome food and care at a local shelter',
   },
 ];
 
