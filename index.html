@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b4332' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M18 6 6 18'/><path d='m6 6 12 12'/></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FoodRescue connects surplus food from restaurants, canteens, bakeries, and events to volunteers and NGOs who distribute it to people in need." />
+    <meta name="theme-color" content="#056b4e" />
+    <title>FoodRescue — Rescue food. Nourish communities.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#ffffff] text-[#111827] antialiased">
+    <div id="root">
+      <noscript>
+        <div style="padding: 24px; text-align: center; font-family: system-ui, sans-serif;">
+          <h2>JavaScript Required</h2>
+          <p>Please enable JavaScript in your browser to run the FoodRescue application.</p>
+        </div>
+      </noscript>
+    </div>
+
+    <!-- Fallback if user opens index.html directly via file:// instead of running dev server -->
+    <script>
+      if (window.location.protocol === 'file:') {
+        window.addEventListener('DOMContentLoaded', () => {
+          setTimeout(() => {
+            const root = document.getElementById('root');
+            if (root && root.children.length === 0) {
+              root.innerHTML = `
+                <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#fbfbf8;font-family:system-ui,-apple-system,sans-serif;padding:24px;box-sizing:border-box;">
+                  <div style="max-width:540px;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:32px;box-shadow:0 10px 25px rgba(0,0,0,0.06);text-align:left;">
+                    <div style="display:inline-flex;align-items:center;gap:8px;background:#def4ea;color:#1c4433;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:16px;">
+                      FoodRescue Community Platform
+                    </div>
+                    <h2 style="font-size:22px;font-weight:700;color:#141716;margin:0 0 8px;">Development Server Required</h2>
+                    <p style="font-size:14px;color:#566a61;line-height:1.6;margin:0 0 20px;">
+                      You opened <code>index.html</code> directly from your file manager via <code>file://</code>. Modern React + Vite applications cannot execute uncompiled JSX or ES modules over the <code>file://</code> protocol due to browser CORS rules.
+                    </p>
+                    <div style="background:#f5f4ee;border-radius:10px;padding:16px;font-size:13px;color:#141716;margin-bottom:20px;line-height:1.8;">
+                      <strong>How to view FoodRescue:</strong><br/>
+                      1. Double-click <code>start.bat</code> in this project folder, OR<br/>
+                      2. In your terminal run: <code style="background:#fff;padding:2px 6px;border-radius:4px;border:1px solid #dcd8c5;">npm run dev</code><br/>
+                      3. Then visit: <a href="http://localhost:5173" style="color:#1c4433;font-weight:600;text-decoration:underline;">http://localhost:5173</a>
+                    </div>
+                    <a href="http://localhost:5173" style="display:inline-block;background:#1c4433;color:#ffffff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Open http://localhost:5173</a>
+                  </div>
+                </div>
+              `;
+            }
+          }, 400);
+        });
+      }
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

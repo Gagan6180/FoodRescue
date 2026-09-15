@@ -1,0 +1,289 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import {
+  INITIAL_DONATIONS,
+  INITIAL_STATS,
+  INITIAL_VOLUNTEER_PROFILE,
+  MOCK_ORGANIZATIONS,
+  MOCK_VOLUNTEERS,
+} from '../data/mockData';
+
+const FoodRescueContext = createContext(null);
+
+const STORAGE_KEYS = {
+  DONATIONS: 'foodrescue_donations_v1',
+  STATS: 'foodrescue_stats_v1',
+  VOLUNTEER: 'foodrescue_volunteer_v1',
+  ORGANIZATIONS: 'foodrescue_orgs_v1',
+  VOLUNTEER_LIST: 'foodrescue_volunteers_list_v1',
+};
+
+export function FoodRescueProvider({ children }) {
+  // 1. Donations state
+  const [donations, setDonations] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.DONATIONS);
+      return saved ? JSON.parse(saved) : INITIAL_DONATIONS;
+    } catch {
+      return INITIAL_DONATIONS;
+    }
+  });
+
+  // 2. Global stats
+  const [stats, setStats] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.STATS);
+      return saved ? JSON.parse(saved) : INITIAL_STATS;
+    } catch {
+      return INITIAL_STATS;
+    }
+  });
+
+  // 3. Volunteer profile (Arjun Barman)
+  const [volunteerProfile, setVolunteerProfile] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.VOLUNTEER);
+      return saved ? JSON.parse(saved) : INITIAL_VOLUNTEER_PROFILE;
+    } catch {
+      return INITIAL_VOLUNTEER_PROFILE;
+    }
+  });
+
+  // 4. Partner Organizations
+  const [organizations, setOrganizations] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.ORGANIZATIONS);
+      return saved ? JSON.parse(saved) : MOCK_ORGANIZATIONS;
+    } catch {
+      return MOCK_ORGANIZATIONS;
+    }
+  });
+
+  // 5. Volunteers Directory (Admin view)
+  const [volunteers, setVolunteers] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.VOLUNTEER_LIST);
+      return saved ? JSON.parse(saved) : MOCK_VOLUNTEERS;
+    } catch {
+      return MOCK_VOLUNTEERS;
+    }
+  });
+
+  // 6. Active Toast Notifications
+  const [toasts, setToasts] = useState([]);
+
+  // Persistence effects
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.DONATIONS, JSON.stringify(donations));
+  }, [donations]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(stats));
+  }, [stats]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.VOLUNTEER, JSON.stringify(volunteerProfile));
+  }, [volunteerProfile]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.ORGANIZATIONS, JSON.stringify(organizations));
+  }, [organizations]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.VOLUNTEER_LIST, JSON.stringify(volunteers));
+  }, [volunteers]);
+
+  // Toast Helpers
+  const addToast = (message, type = 'success') => {
+    const id = Date.now() + Math.random().toString(36).substring(2, 6);
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      removeToast(id);
+    }, 4500);
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // Action: Add new surplus donation
+  const addDonation = (newDonation) => {
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const donationId = `FR-${randomSuffix}`;
+    const weight = Number(newDonation.mealsCount || 10) * 0.45;
+
+    const createdItem = {
+      id: donationId,
+      title: newDonation.title || 'Surplus Meal Pack',
+      category: newDonation.category || 'Cooked Meals',
+      quantity: newDonation.quantity || `${newDonation.mealsCount || 20} meals`,
+      mealsCount: Number(newDonation.mealsCount) || 20,
+      kgWeight: Math.round(weight * 10) / 10,
+      donor: newDonation.donor || 'Community Food Donor',
+      donorType: newDonation.donorType || 'Restaurant',
+      location: newDonation.location || 'GS Road, Guwahati',
+      city: newDonation.city || 'Guwahati',
+      distanceKm: Number((Math.random() * 3 + 1).toFixed(1)),
+      prepTime: newDonation.prepTime || 'Today recent',
+      deadline: newDonation.deadline || 'Today 11:00 PM',
+      deadlineTimestamp: Date.now() + 1000 * 60 * 180,
+      contactNumber: newDonation.contactNumber || '+91 98640 00000',
+      status: 'Available',
+      tags: newDonation.tags || ['Verified Safe', 'Surplus Fresh'],
+      description: newDonation.description || 'Nutritious, carefully packaged surplus food ready for prompt pickup.',
+      imageUrl: newDonation.imageUrl || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80',
+      claimedBy: null,
+      claimedAt: null,
+      collectedAt: null,
+      deliveredAt: null,
+      destinationOrg: null,
+    };
+
+    setDonations((prev) => [createdItem, ...prev]);
+    setStats((prev) => ({
+      ...prev,
+      activeDonors: prev.activeDonors + 1,
+    }));
+
+    addToast(`Donation ${donationId} created! It is now live on the Available Food board.`);
+    return createdItem;
+  };
+
+  // Action: Volunteer claims pickup
+  const claimPickup = (donationId) => {
+    const item = donations.find((d) => d.id === donationId);
+    if (!item) return;
+
+    setDonations((prev) =>
+      prev.map((d) =>
+        d.id === donationId
+          ? {
+              ...d,
+              status: 'Accepted',
+              claimedBy: volunteerProfile.name,
+              claimedAt: 'Just now',
+              destinationOrg: 'Community Kitchen (Paltan Bazar)',
+            }
+          : d
+      )
+    );
+
+    addToast(`Pickup ${donationId} accepted. You can view & progress it in My Pickups.`);
+  };
+
+  // Action: Mark as Collected
+  const markAsCollected = (donationId) => {
+    setDonations((prev) =>
+      prev.map((d) =>
+        d.id === donationId
+          ? {
+              ...d,
+              status: 'Collected',
+              collectedAt: 'Just now',
+            }
+          : d
+      )
+    );
+    addToast(`Food collected from donor. Head towards distribution point.`);
+  };
+
+  // Action: Mark as Delivered
+  const markAsDelivered = (donationId, destinationOrgName) => {
+    const item = donations.find((d) => d.id === donationId);
+    if (!item) return;
+
+    const meals = item.mealsCount || 20;
+    const kg = item.kgWeight || Math.round(meals * 0.45);
+
+    setDonations((prev) =>
+      prev.map((d) =>
+        d.id === donationId
+          ? {
+              ...d,
+              status: 'Delivered',
+              deliveredAt: 'Just now',
+              destinationOrg: destinationOrgName || d.destinationOrg || 'Community Kitchen',
+            }
+          : d
+      )
+    );
+
+    // Update global platform metrics
+    setStats((prev) => ({
+      ...prev,
+      successfulPickups: prev.successfulPickups + 1,
+      mealsRescued: prev.mealsRescued + meals,
+      divertedKg: prev.divertedKg + kg,
+    }));
+
+    // Update volunteer's personal metrics
+    setVolunteerProfile((prev) => ({
+      ...prev,
+      personalStats: {
+        ...prev.personalStats,
+        mealsRescued: prev.personalStats.mealsRescued + meals,
+        pickupsCompleted: prev.personalStats.pickupsCompleted + 1,
+        kgSaved: prev.personalStats.kgSaved + kg,
+      },
+    }));
+
+    // Also update volunteer list entry
+    setVolunteers((prev) =>
+      prev.map((v) =>
+        v.name === volunteerProfile.name
+          ? {
+              ...v,
+              pickups: v.pickups + 1,
+              mealsRescued: v.mealsRescued + meals,
+            }
+          : v
+      )
+    );
+
+    addToast(`Delivered successfully! ${meals} meals safely provided. Impact recorded.`);
+  };
+
+  // Reset to original mock data
+  const resetToDefaults = () => {
+    localStorage.removeItem(STORAGE_KEYS.DONATIONS);
+    localStorage.removeItem(STORAGE_KEYS.STATS);
+    localStorage.removeItem(STORAGE_KEYS.VOLUNTEER);
+    localStorage.removeItem(STORAGE_KEYS.ORGANIZATIONS);
+    localStorage.removeItem(STORAGE_KEYS.VOLUNTEER_LIST);
+    setDonations(INITIAL_DONATIONS);
+    setStats(INITIAL_STATS);
+    setVolunteerProfile(INITIAL_VOLUNTEER_PROFILE);
+    setOrganizations(MOCK_ORGANIZATIONS);
+    setVolunteers(MOCK_VOLUNTEERS);
+    addToast('Demo database reset to initial realistic values.', 'info');
+  };
+
+  return (
+    <FoodRescueContext.Provider
+      value={{
+        donations,
+        stats,
+        volunteerProfile,
+        organizations,
+        volunteers,
+        toasts,
+        addToast,
+        removeToast,
+        addDonation,
+        claimPickup,
+        markAsCollected,
+        markAsDelivered,
+        resetToDefaults,
+      }}
+    >
+      {children}
+    </FoodRescueContext.Provider>
+  );
+}
+
+export function useFoodRescue() {
+  const context = useContext(FoodRescueContext);
+  if (!context) {
+    throw new Error('useFoodRescue must be used within a FoodRescueProvider');
+  }
+  return context;
+}
