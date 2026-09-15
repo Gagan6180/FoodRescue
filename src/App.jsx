@@ -19,6 +19,7 @@ import CompletedPickupsPage from './pages/CompletedPickupsPage';
 import VolunteerImpactPage from './pages/VolunteerImpactPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import SignInPage from './pages/SignInPage';
+import RegisterVolunteerPage from './pages/RegisterVolunteerPage';
 
 // Scroll to top upon page navigation
 function ScrollToTop() {
@@ -47,6 +48,7 @@ function App() {
               <Route path="/how-it-works" element={<HowItWorksPage />} />
               <Route path="/impact" element={<ImpactPage />} />
               <Route path="/signin" element={<SignInPage />} />
+              <Route path="/register-volunteer" element={<RegisterVolunteerPage />} />
               
               {/* Volunteer Portal */}
               <Route path="/dashboard" element={<DashboardLayout />}>

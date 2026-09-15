@@ -146,6 +146,23 @@ export default function Navbar() {
               </Link>
             );
           })}
+
+          <div className="pt-2 mt-2 border-t border-gray-100 flex flex-col gap-2">
+            <Link
+              to="/register-volunteer"
+              onClick={() => setIsOpen(false)}
+              className="w-full py-2.5 px-4 rounded-xl text-sm font-semibold text-[#056b4e] bg-[#e8f7f0] text-center"
+            >
+              Register as Volunteer
+            </Link>
+            <Link
+              to="/signin"
+              onClick={() => setIsOpen(false)}
+              className="w-full py-2.5 px-4 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 text-center"
+            >
+              Sign In
+            </Link>
+          </div>
         </div>
       )}
     </header>
