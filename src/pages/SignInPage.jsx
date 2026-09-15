@@ -85,13 +85,10 @@ export default function SignInPage() {
   const ActiveIcon = rolePresets[role].icon;
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex flex-col justify-center bg-[#fbfbf9] py-8 sm:py-14">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 w-full">
-        <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-          
-          {/* Left Side: Sign In Form */}
-          <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between">
-            <div>
+    <div className="min-h-[calc(100vh-80px)] flex flex-col justify-center items-center bg-[#fbfbf9] py-8 sm:py-14">
+      <div className="max-w-xl mx-auto px-4 sm:px-6 w-full">
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 sm:p-10">
+          <div>
               {/* Header */}
               <div className="mb-6">
                 <Link to="/" className="inline-flex items-center gap-2 mb-4 group">
@@ -271,50 +268,7 @@ export default function SignInPage() {
             </div>
           </div>
 
-          {/* Right Side: Visual Brand Panel */}
-          <div className="lg:col-span-5 bg-[#023d2b] text-white p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden">
-            <div className="space-y-6 relative z-10">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-emerald-200 text-xs font-semibold">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Verified Community Access</span>
-              </div>
-
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold leading-snug text-white">
-                Every meal rescued is a family fed and waste diverted.
-              </h2>
-
-              <p className="text-xs sm:text-sm text-emerald-100/80 leading-relaxed">
-                Join over 1,200 food donors, volunteers, and partner community shelters across Guwahati, Nagaon, Delhi, and Bengaluru.
-              </p>
-
-              {/* Stats Card inside panel */}
-              <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-5 border border-white/10 space-y-3">
-                <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                  <span className="text-xs text-emerald-200">Meals Rescued This Week</span>
-                  <span className="font-serif font-bold text-lg text-white">12,847</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                  <span className="text-xs text-emerald-200">Average Pickup Response</span>
-                  <span className="font-serif font-bold text-lg text-white">&lt; 18 mins</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-emerald-200">Municipal Waste Diverted</span>
-                  <span className="font-serif font-bold text-lg text-[#ffc43d]">520 kg</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom quote */}
-            <div className="pt-8 border-t border-white/10 text-xs text-emerald-200/70 relative z-10 flex items-center justify-between">
-              <span>FoodRescue Community Platform</span>
-              <Link to="/how-it-works" className="text-white hover:underline">
-                Learn more &rarr;
-              </Link>
-            </div>
-          </div>
-
         </div>
       </div>
-    </div>
   );
 }

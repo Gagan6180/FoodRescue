@@ -248,11 +248,8 @@ export default function RegisterVolunteerPage() {
           /* =========================================================================
              VOLUNTEER REGISTRATION FORM
              ========================================================================= */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            
-            {/* Left Side: Editorial Lead & Registration Form */}
-            <div className="lg:col-span-8">
-              <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 sm:p-10">
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 sm:p-10">
                 
                 {/* Form Header */}
                 <div className="mb-8 border-b border-gray-100 pb-6">
@@ -620,97 +617,6 @@ export default function RegisterVolunteerPage() {
                 </form>
               </div>
             </div>
-
-            {/* Right Side: Benefits & Live Stats Panel */}
-            <div className="lg:col-span-4 space-y-6">
-              
-              {/* Card 1: How Volunteer Rescues Work */}
-              <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-xs">
-                <h3 className="font-serif text-lg font-bold text-gray-900 mb-4">
-                  How Volunteer Rescues Work
-                </h3>
-
-                <ol className="space-y-4 text-xs text-gray-600">
-                  <li className="flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-[#e8f7f0] text-[#056b4e] font-bold flex items-center justify-center shrink-0">
-                      1
-                    </span>
-                    <div>
-                      <strong className="text-gray-900 block">Surplus Notification</strong>
-                      A nearby bakery, hotel, or host logs freshly prepared surplus meals.
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-[#e8f7f0] text-[#056b4e] font-bold flex items-center justify-center shrink-0">
-                      2
-                    </span>
-                    <div>
-                      <strong className="text-gray-900 block">Claim at Your Convenience</strong>
-                      Tap "Claim Pickup" on the portal. No minimum shifts or mandatory quotas.
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-[#e8f7f0] text-[#056b4e] font-bold flex items-center justify-center shrink-0">
-                      3
-                    </span>
-                    <div>
-                      <strong className="text-gray-900 block">Pick Up & Deliver Safely</strong>
-                      Collect packed meals and hand them over to verified partner orphanages or shelters.
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-[#e8f7f0] text-[#056b4e] font-bold flex items-center justify-center shrink-0">
-                      4
-                    </span>
-                    <div>
-                      <strong className="text-gray-900 block">Track Rescued Impact</strong>
-                      Your volunteer dashboard logs every meal, CO2 diverted, and community badge earned.
-                    </div>
-                  </li>
-                </ol>
-              </div>
-
-              {/* Card 2: Volunteer Testimonial */}
-              <div className="bg-[#023d2b] text-white rounded-3xl p-6 shadow-md relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl" />
-                <div className="flex items-center gap-1 text-[#ffc43d] mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i}>★</span>
-                  ))}
-                </div>
-                <blockquote className="text-xs text-emerald-100/90 leading-relaxed italic mb-4">
-                  "I do one pickup on my motorcycle on my way home from work every Tuesday. In 4 months, that simple detour has rescued over 600 wholesome meals for children at Snehalaya."
-                </blockquote>
-                <div className="flex items-center gap-3 pt-3 border-t border-white/10">
-                  <div className="w-9 h-9 rounded-full bg-emerald-700 flex items-center justify-center font-bold text-xs text-white">
-                    AR
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-white">Arjun Roy</div>
-                    <div className="text-[10px] text-emerald-300">Rescuer since 2024 · 48 Pickups</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 3: Already an existing volunteer? */}
-              <div className="bg-[#e8f7f0] border border-[#b8e6d2] rounded-3xl p-6 text-center">
-                <h4 className="font-serif text-base font-bold text-[#056b4e] mb-1">
-                  Already Registered?
-                </h4>
-                <p className="text-xs text-gray-600 mb-4">
-                  Sign in to your active rescuer dashboard to accept new pickup alerts.
-                </p>
-                <Link
-                  to="/signin"
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-[#056b4e] text-white text-xs font-semibold hover:bg-[#04563e] transition-colors"
-                >
-                  Sign In to Rescuer Portal
-                </Link>
-              </div>
-
-            </div>
-
-          </div>
         )}
 
       </div>

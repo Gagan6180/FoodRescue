@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Database, CheckCircle2, AlertTriangle, ExternalLink, Copy, Check, X, RefreshCw } from 'lucide-react';
 import { useFoodRescue } from '../../context/FoodRescueContext';
 
-export default function SupabaseStatusBadge() {
+export default function SupabaseStatusBadge({ isTransparent = false }) {
   const { isLiveDb, isSupabaseConfigured, dbLoading, refreshData, donations } = useFoodRescue();
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -20,7 +20,13 @@ export default function SupabaseStatusBadge() {
         type="button"
         onClick={() => setIsOpen(true)}
         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 border cursor-pointer ${
-          isLiveDb
+          isTransparent
+            ? isLiveDb
+              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40 hover:bg-emerald-500/30 backdrop-blur-md'
+              : isSupabaseConfigured
+              ? 'bg-amber-500/20 text-amber-300 border-amber-400/40 hover:bg-amber-500/30 backdrop-blur-md'
+              : 'bg-white/15 text-white border-white/20 hover:bg-white/25 backdrop-blur-md'
+            : isLiveDb
             ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 shadow-sm'
             : isSupabaseConfigured
             ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
